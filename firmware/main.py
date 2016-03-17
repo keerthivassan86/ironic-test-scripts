@@ -9,13 +9,7 @@ def main():
     pdb.set_trace()
     handle=ucshandle.UcsHandle(IP,username=USERNAME,password=PASSWORD)
     handle.login()
-    #x = firm.Firmware(handle,dn="org-root/org-Finance")
-    #print handle
-    #sp=firm.ServiceProfile(handle,"org-root/org-Finance","Welcome-initial") # Template type should be initial not updateable
-    #sp.modify_sp()
-    #sp.create_fw_policy()
-    blade=firm.BladeServer(handle,"org-root/org-Finance",version="2.2(6g)",policy_name="onecloudfirmware")
-    #blade.modify_sp()
+    blade=firm.BladeServer(handle,"org-root/org-Finance",version="2.2(6g)",policy_name="onecloudfirmware") # Provide the version number that the blade should be upgrade.
     blade.discover_blade_server()
 
 if __name__ == "__main__":

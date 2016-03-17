@@ -55,11 +55,15 @@ class Firmware(object):
 
          
 class ServiceProfile(Firmware):
+   
+    """
+       Modify service profile with host firmware policy.
+    """
     
     def __init__(self, handle, dn):
         super(ServiceProfile,self).__init__(handle,dn)
           
-
+    
     def modify_sp(self,blade_sp):
         s=self.handle.query_classid("LsServer")
         print("Querying all service profiles")
@@ -124,19 +128,16 @@ class BladeServer(ServiceProfile):
         blade_sp=[]
         pdb.set_trace()
         print("Discover blade servers")
+        
         filter1='(association,"associated" , type="eq")' 
         filter2='(assigned_to_dn, " ",type="ne")'
         myfilter= filter1 + "and" + filter2 
-        list_blades=self.handle.query_classid("ComputeBlade",filter_str=myfilter)
+        list_blades=self.handle.query_classid("ComputeBlade",filter_str=myfilter)  # Fetch the blades , only attached with service profile **
         """
          List only the blades which is associated to Service profile with type Initial
         """
         for blade in list_blades:
 
-            #if not blade.dn in blade_sp:
-                #blade_sp[blade.dn] = {
-                       #"chassis_id":blade.chassis_id,"assigned_to_dn": blade.assigned_to_dn,"association_state":blade.association
-                                #}
             myblade={'blade':{'blade_dn':blade.dn,'assigned_to':blade.assigned_to_dn,'association':blade.association}}
             blade_sp.append(myblade)
             mgmt_controllers = self.handle.query_children(in_mo=blade,
@@ -146,8 +147,8 @@ class BladeServer(ServiceProfile):
                     mgmt_controller = mo
                     break
 
-            firmware_running = self.handle.query_children(in_mo=mgmt_controller,
-                                                 class_id="FirmwareRunning")
+            firmware_running = self.handle.query_children(in_mo=mgmt_controller,    # Check the current firmware version of blades.              
+                                                 class_id="FirmwareRunning")               
             for mo in firmware_running:
                 if mo.deployment == "system" or mo.deployment == "boot-loader" and mo.version == self.version:
 
@@ -155,7 +156,7 @@ class BladeServer(ServiceProfile):
                                                                    mo.version))
                 else:
                     print("current blade <%s> version <%s>"%(blade.dn,mo.version))
-                    super(BladeServer,self).modify_sp(blade_sp)    
+                    super(BladeServer,self).modify_sp(blade_sp)                    # Upgrade the firmware version by modifying service Profile.
             
                 
 
