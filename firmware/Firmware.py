@@ -13,23 +13,44 @@ class Firmware(object):
         self.handle=handle
         self.dn=dn
 
+    def get_firm_bundle(self,bundle_type=None):     # We are focusing only on blade base bundles
+        blade_version=self.version + "B"
+        
+        if bundle_type is not None:
+            filter_str = '(type, %s, type="eq")' % bundle_type
+        bundles = self.handle.query_classid(
+                class_id="FirmwareDistributable", filter_str=filter_str)
+        for bundle in bundles:
+            if bundle.version == blade_version:
+                return True  
+        return False
+    
+ 
+        
+
     def create_fw_policy(self,name):
      	""" 
          Creating firmware policy for the B/C series servers.
         """
-        pdb.set_trace() 
-        filter_str = '(dn,%s,type="eq")' % self.dn
-        dn=self.handle.query_dn(self.dn)
-        if dn:
+        name=None
+        pdb.set_trace()
+        print(" ** check for available bundles inside FI")
+        
+        check_bundle=self.get_firm_bundle(bundle_type="b-series-bundle")
+        if check_bundle:
+   
+            filter_str = '(dn,%s,type="eq")' % self.dn
+            dn=self.handle.query_dn(self.dn)
+            if dn:
             #check_firmware_exists(self,name)
-            mo=firm_pack(parent_mo_or_dn=self.dn,
+                mo=firm_pack(parent_mo_or_dn=self.dn,
                                  name=name,
                                  blade_bundle_version="2.2(6g)B",
                                  ignore_comp_check="yes",
                                  update_trigger="immediate")
 
-            self.handle.add_mo(mo,True)
-            self.handle.commit()
+                self.handle.add_mo(mo,True)
+                self.handle.commit()
         return name 
    
     def check_firmware_exists(self,name):
@@ -66,23 +87,24 @@ class ServiceProfile(Firmware):
     
     def modify_sp(self,blade_sp):
         s=self.handle.query_classid("LsServer")
-        print("Querying all service profiles")
+        print("** Querying all service profiles")
         time.sleep(2) 
         xx=[x.__dict__ for x in s if x.assign_state == 'unassigned' and x.assoc_state == 'unassociated' and x.type == 'initial-template']
          
         
         for x in xx:
-            print("Service profile template Name '%s' and type '%s'"%(x['name'],x['type']))
-            print("\n\n")
-            print "Current Service Profile Firmware Policy  '%s'"%(x["oper_host_fw_policy_name"])
-            print("check for available firmware policies")
+            print("** Service profile template Name '%s' and type '%s'"%(x['name'],x['type']))
+            print("\n")
+            print "**Current Service Profile Firmware Policy  '%s'"%(x["oper_host_fw_policy_name"])
+            print("\n")
+            print("**Check for available firmware policies")
             firmware_list=super(ServiceProfile,self).list_firmware_policy()
             
             if firmware_list.get(self.policy_name):
                 print("** Firmware policy <%s> was found "%(self.policy_name)) 
                 
                 set_flag=False
-                user_input=raw_input("Want to upgrade the firmware version form the current version. Press 'yes' to proceed.")
+                user_input=raw_input("** Want to upgrade the firmware version form the current version . Press 'yes' to proceed.")
                 if user_input.strip().lower() == "yes":
                     set_flag=True
                     count=0
