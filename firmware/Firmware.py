@@ -136,29 +136,33 @@ class BladeServer(ServiceProfile):
         """
          List only the blades which is associated to Service profile with type Initial
         """
-        for blade in list_blades:
+        if list_blades:
 
-            myblade={'blade':{'blade_dn':blade.dn,'assigned_to':blade.assigned_to_dn,'association':blade.association}}
-            blade_sp.append(myblade)
-            mgmt_controllers = self.handle.query_children(in_mo=blade,
+            for blade in list_blades:
+
+                myblade={'blade':{'blade_dn':blade.dn,'assigned_to':blade.assigned_to_dn,'association':blade.association}}
+                blade_sp.append(myblade)
+                mgmt_controllers = self.handle.query_children(in_mo=blade,
                                                  class_id="MgmtController")
-            for mo in mgmt_controllers:
-                if mo.subject == "blade":
-                    mgmt_controller = mo
-                    break
+                for mo in mgmt_controllers:
+                    if mo.subject == "blade":
+                        mgmt_controller = mo
+                        break
 
-            firmware_running = self.handle.query_children(in_mo=mgmt_controller,    # Check the current firmware version of blades.              
+                firmware_running = self.handle.query_children(in_mo=mgmt_controller,    # Check the current firmware version of blades.              
                                                  class_id="FirmwareRunning")               
-            for mo in firmware_running:
-                if mo.deployment == "system" or mo.deployment == "boot-loader" and mo.version == self.version:
+                for mo in firmware_running:
+                    if mo.deployment == "system" or mo.deployment == "boot-loader" and mo.version == self.version:
 
-                    log.debug("Blade <%s> is already at version <%s>" % (blade.dn,
+                        log.debug("Blade <%s> is already at version <%s>" % (blade.dn,
                                                                    mo.version))
-                else:
-                    print("current blade <%s> version <%s>"%(blade.dn,mo.version))
-                    super(BladeServer,self).modify_sp(blade_sp)                    # Upgrade the firmware version by modifying service Profile.
+                    else:
+                        print("current blade <%s> version <%s>"%(blade.dn,mo.version))
+                        super(BladeServer,self).modify_sp(blade_sp)                    # Upgrade the firmware version by modifying service Profile.
             
                 
 
                                                                  
-        
+        else:
+            print("No blade is associated with service profile")
+       
