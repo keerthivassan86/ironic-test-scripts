@@ -33,7 +33,6 @@ class Firmware(object):
          Creating firmware policy for the B/C series servers.
         """
         name=None
-        pdb.set_trace()
         print(" ** check for available bundles inside FI")
         
         check_bundle=self.get_firm_bundle(bundle_type="b-series-bundle")
@@ -148,7 +147,6 @@ class BladeServer(ServiceProfile):
     def discover_blade_server(self):
         b="none"
         blade_sp=[]
-        pdb.set_trace()
         print("Discover blade servers")
         
         filter1='(association,"associated" , type="eq")' 
