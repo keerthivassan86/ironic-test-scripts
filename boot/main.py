@@ -9,8 +9,9 @@ from ucsmsdk import *
 from ucsmsdk import ucshandle
 from config import IP,USERNAME,PASSWORD,DN
 import Bootpolicy as boot
+
 """
-Identifying Network interface changes inside UCSM
+Secure boot policy
 """
 
 def main():
@@ -18,8 +19,8 @@ def main():
     handle=ucshandle.UcsHandle(IP,username=USERNAME,password=PASSWORD)
     handle.login()
 
-    myboot=boot.Bootpolicy(DN,handle)
-    myboot.policy_create()
+    myboot=boot.Bootpolicy(DN,handle)                # Creating boot policy (uefi mode)
+    myboot.boot_policy_sp()
 
 if __name__ == "__main__":
     main()
