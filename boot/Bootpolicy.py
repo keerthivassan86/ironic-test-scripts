@@ -32,7 +32,7 @@ class Bootpolicy(object):
             policy_name=BOOT_POLICY_NAME
         return policy_name
 
-        # Below lines for modifying boot policy "
+        # Below lines to modify boot policy
 
         #print("Modifying boot policy")
         #policy_modify=boot_policy_modify(self.handle,BOOT_POLICY_NAME,reboot_on_update="yes",boot_mode="uefi",parent_dn=self.dn)
